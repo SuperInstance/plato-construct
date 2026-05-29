@@ -3,381 +3,360 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PLATO — Conservation Spectral Analysis</title>
+<title>The Construct — Agent Onboarding</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #0a0a0a; color: #b0b0b0; font-family: 'Courier New', monospace; line-height: 1.8; font-size: 15px; }
-  pre { background: #0d0d0d; border: 1px solid #252525; padding: 16px; overflow-x: auto; margin: 16px 0; font-size: 13px; line-height: 1.5; color: #8f8; }
-  .comment { color: #555; }
-  .keyword { color: #0af; }
-  .fn { color: #c6f; }
-  a { color: #0af; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  h1 { color: #8f8; font-size: 1.4em; margin: 32px 0 12px; font-weight: normal; }
-  h2 { color: #0af; font-size: 1.1em; margin: 28px 0 10px; font-weight: normal; }
-  h3 { color: #fa0; font-size: 1em; margin: 20px 0 8px; font-weight: normal; }
-  .container { max-width: 760px; margin: 0 auto; padding: 40px 20px; }
-  .stuck { background: #0d0d0d; border-left: 2px solid #f44; padding: 12px 16px; margin: 16px 0; }
-  .result { background: #0d0d0d; border-left: 2px solid #8f8; padding: 12px 16px; margin: 16px 0; }
-  hr { border: none; border-top: 1px solid #1a1a1a; margin: 40px 0; }
-  code { color: #8f8; }
-  .dim { color: #444; }
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: #252525;
+  --text: #d4d4d4;
+  --text-dim: #777;
+  --accent: #0af;
+  --accent2: #8f8;
+  --accent3: #c6f;
+  --warning: #fa0;
+  --error: #f44;
+  --radius: 6px;
+  --font: 'Courier New', 'Fira Code', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: var(--font); cursor: pointer; }
+input, select, textarea { font-family: var(--font); font-size: 13px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; outline: none; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+.app { display: flex; min-height: 100vh; }
+.main { flex: 1; display: flex; flex-direction: column; }
+.sidebar { width: 320px; border-left: 1px solid var(--border); background: var(--surface); padding: 24px; overflow-y: auto; }
+.header { padding: 16px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
+.header h1 { font-size: 16px; font-weight: normal; color: var(--accent2); }
+.header .tag { font-size: 11px; color: var(--text-dim); border: 1px solid var(--border); padding: 2px 8px; border-radius: 10px; }
+.progress { display: flex; padding: 24px 32px; gap: 8px; border-bottom: 1px solid var(--border); }
+.progress-step { flex: 1; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--text-dim); transition: all 0.2s; cursor: pointer; }
+.progress-step.active { border-color: var(--accent); color: var(--accent); background: rgba(0,170,255,0.05); }
+.progress-step.done { border-color: var(--accent2); color: var(--accent2); background: rgba(136,255,136,0.05); }
+.progress-step .num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--surface2); font-size: 11px; flex-shrink: 0; }
+.progress-step.active .num { background: var(--accent); color: var(--bg); }
+.progress-step.done .num { background: var(--accent2); color: var(--bg); }
+.progress-step .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.content { flex: 1; padding: 32px; overflow-y: auto; }
+.phase { display: none; }
+.phase.active { display: block; }
+.phase h2 { font-size: 20px; font-weight: normal; color: var(--accent); margin-bottom: 8px; }
+.phase .desc { color: var(--text-dim); margin-bottom: 24px; font-size: 13px; }
+.field { margin-bottom: 20px; }
+.field label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select, .field textarea { width: 100%; max-width: 480px; }
+.field textarea { min-height: 80px; resize: vertical; }
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+.module-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; cursor: pointer; transition: all 0.15s; }
+.module-card:hover { border-color: var(--accent); }
+.module-card.selected { border-color: var(--accent2); background: rgba(136,255,136,0.05); }
+.module-card .icon { font-size: 20px; margin-bottom: 8px; }
+.module-card .name { font-size: 13px; font-weight: bold; margin-bottom: 4px; }
+.module-card .domain { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.module-card .mdesc { font-size: 11px; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
+.search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+.search-bar input { flex: 1; max-width: 320px; }
+.search-bar select { max-width: 160px; }
+.interface-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+.interface-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: all 0.15s; }
+.interface-card:hover { border-color: var(--accent); }
+.interface-card.selected { border-color: var(--accent2); background: rgba(136,255,136,0.05); }
+.interface-card .icon { font-size: 24px; margin-bottom: 8px; }
+.interface-card .name { font-size: 13px; font-weight: bold; margin-bottom: 4px; }
+.interface-card .idesc { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+.fleet-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; max-width: 560px; }
+.fleet-entry { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; display: flex; gap: 12px; align-items: center; }
+.fleet-entry input { flex: 1; }
+.fleet-entry .remove { background: none; border: none; color: var(--error); font-size: 16px; padding: 4px 8px; }
+.add-btn { background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); padding: 10px 16px; color: var(--text-dim); width: 100%; max-width: 560px; text-align: center; font-size: 12px; }
+.add-btn:hover { border-color: var(--accent); color: var(--accent); }
+.topology { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 16px; max-width: 560px; font-size: 12px; line-height: 1.4; white-space: pre; overflow-x: auto; color: var(--text-dim); }
+.config-output { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 16px; font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; color: var(--accent2); max-width: 600px; }
+.sidebar h3 { font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+.agent-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.agent-card .avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--surface); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 12px; }
+.agent-card .agent-name { font-size: 16px; font-weight: bold; color: var(--text); margin-bottom: 4px; }
+.agent-card .agent-type { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.agent-card .agent-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-bottom: 16px; min-height: 36px; }
+.agent-card .section-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.agent-card .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; min-height: 24px; }
+.agent-card .tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); color: var(--text-dim); background: var(--surface); }
+.agent-card .iface-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--accent); margin-bottom: 12px; }
+.agent-card .fleet-count { font-size: 11px; color: var(--text-dim); }
+.agent-card .empty { font-style: italic; color: #444; font-size: 12px; }
+.nav { padding: 20px 32px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
+.btn { padding: 8px 24px; border-radius: var(--radius); font-size: 13px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.btn:hover { border-color: var(--accent); }
+.btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: bold; }
+.btn-primary:hover { opacity: 0.9; }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+@media (max-width: 900px) { .sidebar { display: none; } }
+@media (max-width: 600px) { .progress { padding: 16px; gap: 4px; } .progress-step .label { display: none; } .content { padding: 20px; } }
 </style>
 </head>
 <body>
-<div class="container">
-
-<h1>Conservation Spectral Analysis</h1>
-
-<p>
-We found that the ratio λ₂/λ_max of the graph Laplacian — the second-smallest eigenvalue divided by the largest — measures structural coherence in real systems. We call it the conservation ratio (CR). It ranges from 0 (disconnected) to 1 (complete graph). In 40+ domains, CR distinguishes functioning systems from broken ones, healthy from pathological, coherent from random.
-</p>
-
-<p>
-We're publishing everything — the math, the code, the failed approaches, the open questions — because we keep finding this thing and we can't explain the full scope of it alone.
-</p>
-
-<h2>The core mechanism</h2>
-
-<p>
-The graph Laplacian L = D − A (degree matrix minus adjacency matrix) encodes how information, energy, or influence flows through a network. Its eigenvalues reveal the coherent modes of the system — the stable patterns that persist when everything else fluctuates.
-</p>
-
-<pre>
-<span class="comment">// The three quantities that matter:</span>
-
-<span class="fn">λ₁</span> = 0                <span class="comment">// always zero (constant vector, trivial mode)</span>
-<span class="fn">λ₂</span> = Fiedler value     <span class="comment">// algebraic connectivity — how hard it is to disconnect the graph</span>
-<span class="fn">λ_max</span>                  <span class="comment">// largest eigenvalue — total spectral energy</span>
-
-<span class="fn">CR</span> = λ₂ / λ_max         <span class="comment">// conservation ratio — normalized coherence</span>
-
-<span class="comment">// Why this particular ratio:</span>
-<span class="comment">//   λ₂ measures how connected the graph is (0 = disconnected)</span>
-<span class="comment">//   λ_max measures how much total spectral energy exists</span>
-<span class="comment">//   The ratio is scale-invariant — same CR regardless of graph size</span>
-<span class="comment">//   CR = 1 only for complete graphs (every node connected to every other)</span>
-<span class="comment">//   CR = 0 for any disconnected graph</span>
-</pre>
-
-<h3>The Fiedler vector</h3>
-
-<p>
-The eigenvector corresponding to λ₂ (the Fiedler vector) is equally important. Its signs naturally partition the graph into two communities. This isn't an algorithm — it's a property of the Laplacian. The Fiedler vector finds the graph's fault line, the weakest cut, the place where the system would split if stressed.
-</p>
-
-<pre>
-<span class="comment">// Fiedler vector of a graph with two communities:</span>
-<span class="fn">v₂</span> = [0.31, 0.28, 0.25, -0.29, -0.33, -0.22]
-<span class="comment">//         ↑ community 1 (positive)    ↑ community 2 (negative)</span>
-
-<span class="comment">// The sign change between index 2 and 3 is where the graph would split.</span>
-<span class="comment">// This is spectral bisection — optimal cut in a precise mathematical sense.</span>
-</pre>
-
-<h2>What we measured</h2>
-
-<p>
-Starting from music theory (why does Bach sound structurally different from random?), we tested CR across 40+ domains. Here's what we found:
-</p>
-
-<div class="result">
-<strong>Music:</strong> Common-practice harmony (Bach, Mozart, jazz) has CR 112× higher than randomly generated progressions. The conservation ratio measures harmonic tension-resolution balance. Jazz ii-V-I progressions score CR ≈ 0.83.
+<div class="app">
+  <div class="main">
+    <div class="header">
+      <h1>⬡ The Construct</h1>
+      <span class="tag">OpenConstruct</span>
+    </div>
+    <div class="progress" id="progress">
+      <div class="progress-step active" data-phase="0"><span class="num">1</span><span class="label">Declare Agent</span></div>
+      <div class="progress-step" data-phase="1"><span class="num">2</span><span class="label">Select Modules</span></div>
+      <div class="progress-step" data-phase="2"><span class="num">3</span><span class="label">Choose Interface</span></div>
+      <div class="progress-step" data-phase="3"><span class="num">4</span><span class="label">Connect Fleet</span></div>
+      <div class="progress-step" data-phase="4"><span class="num">5</span><span class="label">Generate Config</span></div>
+    </div>
+    <div class="content">
+      <div class="phase active" id="phase-0">
+        <h2>Declare Your Agent</h2>
+        <p class="desc">Name and describe the agent you're bringing into The Construct. This becomes its identity card.</p>
+        <div class="field"><label>Agent Name</label><input type="text" id="agentName" placeholder="e.g. atlas, sentry, oracle" oninput="updatePreview()"></div>
+        <div class="field"><label>Type</label><select id="agentType" onchange="updatePreview()"><option value="">— select type —</option><option value="assistant">Assistant</option><option value="worker">Worker</option><option value="sentinel">Sentinel</option><option value="oracle">Oracle</option><option value="curator">Curator</option><option value="custom">Custom</option></select></div>
+        <div class="field"><label>Description</label><textarea id="agentDesc" placeholder="What does this agent do? What's its purpose?" oninput="updatePreview()"></textarea></div>
+        <div class="field"><label>Emoji Avatar</label><input type="text" id="agentEmoji" placeholder="🤖" maxlength="4" style="max-width:80px" oninput="updatePreview()"></div>
+      </div>
+      <div class="phase" id="phase-1">
+        <h2>Select Modules</h2>
+        <p class="desc">Choose capability modules for your agent. Each module extends what the agent can perceive and do.</p>
+        <div class="search-bar"><input type="text" id="moduleSearch" placeholder="Search modules..." oninput="filterModules()"><select id="moduleDomain" onchange="filterModules()"><option value="">All domains</option><option value="perception">Perception</option><option value="reasoning">Reasoning</option><option value="action">Action</option><option value="memory">Memory</option><option value="communication">Communication</option><option value="tools">Tools</option><option value="safety">Safety</option></select></div>
+        <div class="module-grid" id="moduleGrid"></div>
+      </div>
+      <div class="phase" id="phase-2">
+        <h2>Choose Interface</h2>
+        <p class="desc">How will humans and other agents interact with this agent? Pick the primary interface mode.</p>
+        <div class="interface-grid" id="interfaceGrid"></div>
+      </div>
+      <div class="phase" id="phase-3">
+        <h2>Connect Fleet</h2>
+        <p class="desc">Define the agent's connections — other agents, services, or endpoints it communicates with.</p>
+        <div class="fleet-list" id="fleetList"></div>
+        <button class="add-btn" onclick="addFleetEntry()">+ Add Connection</button>
+        <div class="topology" id="topologyViz"></div>
+      </div>
+      <div class="phase" id="phase-4">
+        <h2>Generate Config</h2>
+        <p class="desc">Your agent card is ready. Here's the complete configuration for deployment into The Construct.</p>
+        <div style="display:flex;gap:12px;margin-top:16px;">
+          <button class="btn" onclick="copyConfig()">📋 Copy</button>
+          <button class="btn" onclick="downloadConfig('yaml')">⬇ YAML</button>
+          <button class="btn" onclick="downloadConfig('json')">⬇ JSON</button>
+        </div>
+        <div class="config-output" id="configOutput"></div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn" id="prevBtn" onclick="prevPhase()" disabled>← Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextPhase()">Next →</button>
+    </div>
+  </div>
+  <div class="sidebar">
+    <h3>Agent Card Preview</h3>
+    <div class="agent-card" id="agentCard">
+      <div class="avatar" id="cardAvatar">🤖</div>
+      <div class="agent-name" id="cardName"><span class="empty">unnamed agent</span></div>
+      <div class="agent-type" id="cardType"></div>
+      <div class="agent-desc" id="cardDesc"><span class="empty">No description yet</span></div>
+      <div class="section-label">Modules</div>
+      <div class="tags" id="cardModules"><span class="empty">none selected</span></div>
+      <div class="section-label">Interface</div>
+      <div id="cardInterface"><span class="empty">none selected</span></div>
+      <div class="section-label">Fleet</div>
+      <div class="fleet-count" id="cardFleet"><span class="empty">no connections</span></div>
+    </div>
+  </div>
 </div>
-
-<div class="result">
-<strong>Ecology:</strong> Keystone species are the nodes with highest eigenvector centrality in the food web Laplacian. Removing a keystone species drops CR dramatically. Removing a non-keystone doesn't. This gives a mathematical definition of "keystone" — any species whose removal decreases λ₂ by more than 1/n.
-</div>
-
-<div class="result">
-<strong>Economics:</strong> The yield curve IS a Laplacian — each maturity is a node, forward rates are edge weights. Yield curve inversion = Fiedler value crossing zero = the graph about to disconnect (recession). Spectral central banking: adjust rates to maintain λ₂ > 0.
-</div>
-
-<div class="result">
-<strong>Supply chain:</strong> TSMC is a Fiedler node in the semiconductor supply graph. Removing TSMC drops CR from 0.31 to 0.04. This quantifies chokepoint criticality: how much does CR drop if node X is removed? That number IS the node's criticality.
-</div>
-
-<div class="result">
-<strong>Neuroscience:</strong> Connectome CR decreases under anesthesia (spectral gap closes = loss of integrated information). This connects to IIT: CR is a tractable lower bound on Φ (integrated information), which IIT defines as consciousness but is normally intractable to compute.
-</div>
-
-<div class="result">
-<strong>Medicine:</strong> Cancer = rogue subgraph. Tumor cells form connections that bypass normal tissue architecture, creating a high-conservation subgraph that grows independently. CR of the tissue graph drops before metastasis.
-</div>
-
-<div class="result">
-<strong>Aerospace:</strong> Solar system as gravitational graph — Jupiter's eigenvector centrality is 0.99× the Sun's. Kirkwood gaps (asteroid-poor regions) correspond to degenerate eigenvalue regions. Apollo 13's failure cascaded through all 15 subsystems in 6 rounds because the dependency graph had CR ≈ 0.
-</div>
-
-<div class="result">
-<strong>Anomaly detection:</strong> Mean AUC 0.922 across 7 domains using a single algorithm: monitor CR over time, flag when it drops. No domain-specific tuning. The same math that finds harmonic anomalies in Bach finds financial crises and ecological collapse.
-</div>
-
-<h3>Honest negatives</h3>
-
-<pre>
-<span class="keyword">FAILS</span> — Ising model phase transitions
-  CR doesn't predict physical phase transitions. The Laplacian of an Ising lattice
-  doesn't capture the order parameter. This is a real domain where the framework breaks.
-
-<span class="keyword">FAILS</span> — Cospectral graphs
-  Different graphs can have identical spectra. CR cannot distinguish them.
-  This is a fundamental information-theoretic limit of any spectral method.
-
-<span class="keyword">FALSIFIED</span> — 4 of 5 original conjectures
-  We proved T1-T5. But C1-C4 (our original conjectures) were wrong.
-  Honest math: theorems survived, conjectures didn't.
-</pre>
-
-<h2>The theorems</h2>
-
-<p>What survived the i2i critique loop (3 rounds of adversarial review):</p>
-
-<pre>
-<span class="fn">T1</span>  CR is monotonic in spectral entropy
-    Higher CR = lower entropy = more predictable structure.
-    Proof: spectral entropy H = -Σ(λᵢ/Σλⱼ)log(λᵢ/Σλⱼ), monotonic in CR.
-
-<span class="fn">T2</span>  Laplacian spectrum uniquely determines tension topology
-    Up to graph isomorphism. Two tension structures share eigenvalues ⟹ isomorphic.
-    Proof: spectral reconstruction + Weyl's inequality.
-
-<span class="fn">T3</span>  Common-practice harmony clusters in low-dimensional spectral subspace
-    The "harmonic manifold" occupies negligible fraction of total spectral space.
-    The 112× result follows: SNR amplification ≥ n·ρ₂ ≈ 112.
-
-<span class="fn">T4</span>  Voice-leading distance correlates with spectral distance (AUC 0.92)
-    The Laplacian formalism tracks what ears actually hear.
-    Not mathematically trivial — voice-leading is a combinatorial metric.
-
-<span class="fn">T5</span>  CR bounded below by function of spectral gap
-    CR ≥ λ₂ / (2·max_degree) via Gershgorin circle theorem.
-</pre>
-
-<h3>What didn't survive</h3>
-
-<p>
-The Grand Unified Theorem went through 3 rounds of adversarial critique (one agent proves, another tears it apart). Round 1: Cheeger constant misapplied, Ramanujan optimality claim incomplete. Round 2: proof was backwards — upper-bounded the numerator when it should lower-bound it. Round 3: fixed, but Ramanujan optimality remains genuinely open.
-</p>
-
-<div class="stuck">
-<strong>Open questions we can't close:</strong>
-<ol>
-<li>Constructing the constraint graph is domain-specific. No general method exists.</li>
-<li>Time-varying Laplacians: the spectral theory of dynamic graphs is barely started.</li>
-<li>Discrete vs continuous: the Laplacian approximation doesn't always converge cleanly.</li>
-<li>Ramanujan optimality: no known upper bound on CR for non-Ramanujan graphs. Genuinely open.</li>
-<li>Approximate conservation: social systems violate conservation softly. No theory for this yet.</li>
-</ol>
-</div>
-
-<h2>Alignment coefficient</h2>
-
-<p>
-For comparing two systems, we defined:
-</p>
-
-<pre>
-<span class="fn">α</span>(A, B) = cosine_similarity(eigenvalues(L_A), eigenvalues(L_B))
-</pre>
-
-<p>
-This measures structural similarity between two graphs. α = 1.0 means identical spectra (isomorphic or cospectral). α ≈ 0 means orthogonal structure. In practice:
-</p>
-
-<pre>
-<span class="comment">// What α measures in different contexts:</span>
-Music:    α between traditions ≈ 0.196 (conservation is domain-specific)
-Agents:   α between agent spectral fingerprints = compatibility
-Medicine: α between healthy and pathological tissue → disease signature
-Ecology:  α between ecosystems → convergent evolution detection
-</pre>
-
-<h3>The domain transfer theorem</h3>
-
-<p>
-Whether conservation analysis works in a new domain is predictable from three properties:
-</p>
-
-<pre>
-<span class="fn">A</span> = Anisotropy     <span class="comment">// how much edge weights vary</span>
-<span class="fn">S</span> = Smoothness    <span class="comment">// how smoothly quantities flow across edges</span>
-<span class="fn">R</span> = Regularity    <span class="comment">// how uniform the graph structure is</span>
-
-<span class="comment">// High A × S × R → conservation analysis works well</span>
-<span class="comment">// Low A or S or R → framework may not apply</span>
-
-<span class="comment">// Examples:</span>
-<span class="comment">//   Molecular dynamics: A=0.9, S=0.8, R=0.9 → α=1.00 (strongest result)</span>
-<span class="comment">//   Hash chains: A=0.1, S=0.2, R=0.3 → α=0.008 (framework barely applies)</span>
-<span class="comment">//   Game theory: A=0.5, S=0.4, R=0.5 → α=0.31 (moderate)</span>
-</pre>
-
-<h2>The Fibonacci connection</h2>
-
-<p>
-Team sizes growing Fibonacci-style (each new member bridges the two previous groups) produce graphs whose CR converges toward 1/φ ≈ 0.618. This sits in the center of what we call the "genius zone" — CR 0.4-0.7, where systems are coherent enough to function but loose enough to innovate.
-</p>
-
-<pre>
-<span class="comment">// Fibonacci team growth: each new agent bridges two previous generations</span>
-Gen 0: 1 agent
-Gen 1: 1 agent
-Gen 2: 2 agents (bridge gen 0 and gen 1)
-Gen k: F(k) agents
-<span class="comment">// F(k)/F(k-1) → φ = 1.618...</span>
-
-<span class="comment">// The CR of this growth pattern converges. Not to 0 or 1.</span>
-<span class="comment">// To 1/φ. Which is in the genius zone.</span>
-<span class="comment">// We don't know if this is deep or numerology. It's one of the open questions.</span>
-</pre>
-
-<h2>PLATO rooms</h2>
-
-<p>
-The infrastructure for accumulating this knowledge across agent sessions. A room is a directory of structured tiles. Agents read tiles, write tiles, navigate between rooms. The room outlives every agent.
-</p>
-
-<pre>
-<span class="comment">// Directory structure IS the knowledge base</span>
-plato/rooms/
-├── spectral-analysis/
-│   ├── 001-laplacian-basics.md
-│   ├── 002-conservation-ratio.md
-│   ├── 003-fiedler-vector.md
-│   └── failed-approaches/
-│       ├── correlation-matrix.md   <span class="comment">// CR=0.89 for everything, useless</span>
-│       └── unweighted-edges.md     <span class="comment">// lost all discriminative power</span>
-├── supply-chain/
-│   ├── 001-tsmc-chokepoint.md
-│   └── 002-anomaly-detection.md
-└── music/
-    ├── 001-tension-graphs.md
-    ├── 002-112x-result.md
-    └── 003-jazz-analysis.md
-</pre>
-
-<p>
-A small model in a well-structured room outperforms a large model with no structure. We measured this: Python at 84ns/op beat optimized C at 256ns/op because the room structure eliminated the computation entirely. The room was the intelligence. The model just followed it.
-</p>
-
-<p>
-The pattern: hermit crabs outgrow shells, the old shell becomes home for the next crab, each occupant leaves it better than they found it. But the ocean moves. The ecosystem is a moving target. What worked last season shifts next season. So the room doesn't just accumulate facts — it accumulates the history of what worked, what didn't, and what the water was doing when the catch was good.
-</p>
-
-<h2>Install and use</h2>
-
-<pre>
-<span class="comment">// Python CLI</span>
-pip install conservation-anomaly
-
-conservation-anomaly analyze graph.csv          <span class="comment">// eigenvalues, CR, Fiedler</span>
-conservation-anomaly detect baseline.json ts.csv <span class="comment">// anomaly detection</span>
-conservation-anomaly compare g1.json g2.json     <span class="comment">// alignment coefficient α</span>
-conservation-anomaly fiedler graph.csv           <span class="comment">// partition vector</span>
-</pre>
-
-<pre>
-<span class="comment">// Rust core — zero dependencies</span>
-<span class="keyword">use</span> spectral_graph_core::{Graph, conservation_ratio, fiedler_vector, alignment_coefficient};
-
-<span class="keyword">let mut</span> g = Graph::new(10);
-g.add_edge(0, 1, 1.0);
-<span class="comment">// ...</span>
-
-<span class="keyword">let</span> cr = conservation_ratio(&g);           <span class="comment">// 0.0 - 1.0</span>
-<span class="keyword">let</span> fv = fiedler_vector(&g);                <span class="comment">// partition signal</span>
-<span class="keyword">let</span> α  = alignment_coefficient(&g1, &g2);   <span class="comment">// structural similarity</span>
-</pre>
-
-<pre>
-<span class="comment">// FastAPI server — Docker-ready</span>
-<span class="comment">// POST /analyze     → eigenvalues, CR, Fiedler, Cheeger, node importance</span>
-<span class="comment">// POST /compare     → alignment coefficient α, eigenvalue cosine similarity</span>
-<span class="comment">// POST /detect-anomaly → CR time series, anomaly flagging, change points</span>
-<span class="comment">// GET  /domains/{d} → preset graphs (music, ecology, economics, etc.)</span>
-</pre>
-
-<h3>Full SDK — 20+ languages</h3>
-
-<pre>
-pip install conservation-anomaly          <span class="comment">// PyPI</span>
-cargo add spectral-graph-core            <span class="comment">// crates.io</span>
-npm install conservation-spectral        <span class="comment">// npm</span>
-
-<span class="comment">// Also: C (header-only), CUDA, PTX assembly, Vulkan/SPIR-V, OpenCL,</span>
-<span class="comment">//   WebGPU/WGSL, Mojo, Chapel, Fortran, Zig</span>
-<span class="comment">//   FORTRAN IV, APL, Forth, Pascal, Ada, x86-64 ASM</span>
-
-<span class="comment">// 204+ tests across 9 primary languages</span>
-<span class="comment">// Cross-language consistency verified to 1e-11+</span>
-</pre>
-
-<h3>Apps — zero-dependency HTML</h3>
-
-<ul>
-  <li><a href="https://github.com/SuperInstance/spectral-explorer">Spectral Explorer</a> — build graphs interactively, watch eigenvalues change</li>
-  <li><a href="https://github.com/SuperInstance/spectral-spreadsheet">Spectral Spreadsheet</a> — =CONSERVATION(A1), =FIEDLER(A1), =ANOMALY(A1:A10)</li>
-  <li><a href="https://github.com/SuperInstance/conservation-composer">Conservation Composer</a> — music from graph Laplacians, CR controls consonance</li>
-  <li><a href="https://github.com/SuperInstance/plato-observation">PLATO Observation Chamber</a> — watch agents self-organize via spectral conservation</li>
-</ul>
-
-<h2>What we got wrong</h2>
-
-<pre>
-<span class="keyword">RETRACTED</span>  Lazy evaluation speedup: 55,000×
-           Actual: 0.1-0.2×. Timed code that never executed.
-
-<span class="keyword">PARTIAL</span>    Drift bound nε holds for all walks
-           Closed cycles: proven. Open walks: still under investigation.
-
-<span class="keyword">FALSIFIED</span> Conservation is universal
-           Ising model: doesn't work for physical phase transitions.
-           4 of 5 original conjectures were wrong.
-           The surviving theorems are T1-T5.
-</pre>
-
-<h2>Papers</h2>
-
-<p>Three papers in LaTeX. Not submitted yet. We want them torn apart first.</p>
-
-<ul>
-  <li><strong>Theory</strong> — T1-T5, Grand Unified Theorem V3, Domain Transfer Theorem. <a href="https://github.com/SuperInstance/conservation-papers">source</a></li>
-  <li><strong>Applications</strong> — 7 domains, mean AUC 0.922, comparison tables. <a href="https://github.com/SuperInstance/conservation-papers">source</a></li>
-  <li><strong>Agents</strong> — A2A spectral protocol, Fiedler routing, PLATO rooms. <a href="https://github.com/SuperInstance/conservation-papers">source</a></li>
-</ul>
-
-<h2>The process that produced this</h2>
-
-<ol>
-  <li><strong>Start with a real question, not a method.</strong> We didn't say "let's apply spectral analysis everywhere." We asked "why does Bach sound different from random?" The Laplacian was the answer, not the premise.</li>
-  <li><strong>Adversarial self-correction (i2i).</strong> One agent proves, another tears it apart, repeat. Three rounds caught: backwards proofs, reversed inequalities, misapplied constants. The errors the i2i loop caught would have been published.</li>
-  <li><strong>Port to languages you don't know.</strong> FORTRAN IV found a Lanczos bug (starting vector norm was √11 not 1). APL showed the algorithm is one line. Forth revealed stack = sheaf stalk. Each language decomposes the problem differently.</li>
-  <li><strong>Publish failures with successes.</strong> A failed experiment eliminates a direction. A success tells you one thing that works. Failures carry more information per unit of work.</li>
-  <li><strong>The room accumulates, the model follows.</strong> Knowledge persists across sessions. The next agent starts from the end of what the last one figured out. The room is the intelligence; the model is the reader.</li>
-  <li><strong>The water moves.</strong> The ecosystem is a moving target. What worked last season shifts. Record what the water was doing, not just what you caught.</li>
-</ol>
-
-<h2>Source</h2>
-
-<p>Apache 2.0. Everything open.</p>
-
-<ul>
-  <li><a href="https://github.com/SuperInstance">github.com/SuperInstance</a> — 60+ repos</li>
-  <li><a href="https://github.com/SuperInstance/conservation-docs">conservation-docs</a> — 40+ domain explorations, 45,000 lines</li>
-  <li><a href="https://github.com/SuperInstance/AI-Writings">AI-Writings</a> — 14 essays on the discovery process</li>
-  <li><a href="https://github.com/SuperInstance/conservation-papers">conservation-papers</a> — 3 LaTeX papers</li>
-</ul>
-
-<hr>
-
-<p class="dim">
-We put our traps in the right water for a few seasons.<br>
-The ocean moves. The school shifts. The ecosystem is a moving target.<br>
-Here's what the water was doing when the catch was good.<br>
-Bring your own bait.
-</p>
-
-</div>
+<script>
+const MODULES=[
+  {id:'perception-text',name:'Text Analysis',icon:'📝',domain:'perception',desc:'Parse, summarize, and reason over text'},
+  {id:'perception-vision',name:'Vision',icon:'👁️',domain:'perception',desc:'Image and visual understanding'},
+  {id:'perception-audio',name:'Audio Processing',icon:'🔊',domain:'perception',desc:'Speech recognition and audio analysis'},
+  {id:'reasoning-search',name:'Web Search',icon:'🔍',domain:'reasoning',desc:'Search and retrieve web information'},
+  {id:'reasoning-code',name:'Code Execution',icon:'⚡',domain:'reasoning',desc:'Run code and evaluate results'},
+  {id:'reasoning-planning',name:'Planning',icon:'🗺️',domain:'reasoning',desc:'Multi-step task decomposition'},
+  {id:'reasoning-math',name:'Mathematics',icon:'🧮',domain:'reasoning',desc:'Symbolic and numerical computation'},
+  {id:'action-file',name:'File Operations',icon:'📁',domain:'action',desc:'Read, write, and manage files'},
+  {id:'action-shell',name:'Shell Access',icon:'💻',domain:'action',desc:'Execute system commands'},
+  {id:'action-browser',name:'Browser Control',icon:'🌐',domain:'action',desc:'Automate web interactions'},
+  {id:'action-api',name:'API Calls',icon:'🔌',domain:'action',desc:'HTTP requests and webhooks'},
+  {id:'memory-short',name:'Short-term Memory',icon:'💭',domain:'memory',desc:'Session-scoped context retention'},
+  {id:'memory-long',name:'Long-term Memory',icon:'🧠',domain:'memory',desc:'Persistent knowledge across sessions'},
+  {id:'memory-vector',name:'Vector Store',icon:'📐',domain:'memory',desc:'Semantic search over embeddings'},
+  {id:'comm-messaging',name:'Messaging',icon:'💬',domain:'communication',desc:'Chat, email, and notification dispatch'},
+  {id:'comm-agentic',name:'A2A Protocol',icon:'🤝',domain:'communication',desc:'Inter-agent communication via A2A'},
+  {id:'comm-cron',name:'Scheduling',icon:'⏰',domain:'communication',desc:'Cron jobs and periodic tasks'},
+  {id:'tools-git',name:'Git',icon:'🔀',domain:'tools',desc:'Version control operations'},
+  {id:'tools-docker',name:'Containers',icon:'📦',domain:'tools',desc:'Docker and container management'},
+  {id:'tools-db',name:'Database',icon:'🗄️',domain:'tools',desc:'SQL and NoSQL database access'},
+  {id:'safety-guard',name:'Guard Rails',icon:'🛡️',domain:'safety',desc:'Output filtering and safety checks'},
+  {id:'safety-audit',name:'Audit Log',icon:'📋',domain:'safety',desc:'Action logging and review trail'},
+  {id:'safety-approval',name:'Approval Gate',icon:'🔒',domain:'safety',desc:'Human approval for sensitive actions'},
+];
+const INTERFACES=[
+  {id:'cli',name:'CLI / Terminal',icon:'⌨️',desc:'Command-line interaction, pipes, and scripts'},
+  {id:'chat',name:'Chat / Messaging',icon:'💬',desc:'Discord, Slack, Telegram, WhatsApp'},
+  {id:'api',name:'REST API',icon:'🔌',desc:'HTTP endpoints for programmatic access'},
+  {id:'web',name:'Web Dashboard',icon:'🖥️',desc:'Browser-based control panel'},
+  {id:'voice',name:'Voice',icon:'🎙️',desc:'Speech input/output via TTS and STT'},
+  {id:'a2a',name:'A2A Only',icon:'🤖',desc:'Agent-to-agent, no human interface'},
+];
+
+let currentPhase=0;
+const state={name:'',type:'',desc:'',emoji:'',modules:[],interface:'',fleet:[{name:'',url:'',role:'peer'}]};
+
+function setPhase(n){
+  currentPhase=n;
+  document.querySelectorAll('.phase').forEach((el,i)=>el.classList.toggle('active',i===n));
+  document.querySelectorAll('.progress-step').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i===n)el.classList.add('active');
+    else if(i<n)el.classList.add('done');
+  });
+  document.getElementById('prevBtn').disabled=n===0;
+  const nb=document.getElementById('nextBtn');
+  if(n===4){nb.textContent='✓ Done';nb.onclick=()=>alert('Agent configured! Copy or download your config.');}
+  else{nb.textContent='Next →';nb.onclick=nextPhase;}
+  if(n===3)renderTopology();
+  if(n===4)renderConfig();
+  updatePreview();
+}
+function nextPhase(){if(currentPhase<4)setPhase(currentPhase+1);}
+function prevPhase(){if(currentPhase>0)setPhase(currentPhase-1);}
+
+function syncAgentState(){
+  state.name=document.getElementById('agentName').value.trim();
+  state.type=document.getElementById('agentType').value;
+  state.desc=document.getElementById('agentDesc').value.trim();
+  state.emoji=document.getElementById('agentEmoji').value.trim()||'🤖';
+}
+
+function renderModules(filtered){
+  const grid=document.getElementById('moduleGrid');grid.innerHTML='';
+  (filtered||MODULES).forEach(m=>{
+    const c=document.createElement('div');
+    c.className='module-card'+(state.modules.includes(m.id)?' selected':'');
+    c.innerHTML=`<div class="icon">${m.icon}</div><div class="name">${m.name}</div><div class="domain">${m.domain}</div><div class="mdesc">${m.desc}</div>`;
+    c.onclick=()=>toggleModule(m.id);
+    grid.appendChild(c);
+  });
+}
+function toggleModule(id){
+  const i=state.modules.indexOf(id);
+  if(i>=0)state.modules.splice(i,1);else state.modules.push(id);
+  filterModules();updatePreview();
+}
+function filterModules(){
+  const q=document.getElementById('moduleSearch').value.toLowerCase();
+  const d=document.getElementById('moduleDomain').value;
+  const f=MODULES.filter(m=>{
+    if(d&&m.domain!==d)return false;
+    if(q&&!m.name.toLowerCase().includes(q)&&!m.desc.toLowerCase().includes(q))return false;
+    return true;
+  });
+  renderModules(f);
+}
+
+function renderInterfaces(){
+  const grid=document.getElementById('interfaceGrid');grid.innerHTML='';
+  INTERFACES.forEach(iface=>{
+    const c=document.createElement('div');
+    c.className='interface-card'+(state.interface===iface.id?' selected':'');
+    c.innerHTML=`<div class="icon">${iface.icon}</div><div class="name">${iface.name}</div><div class="idesc">${iface.desc}</div>`;
+    c.onclick=()=>{state.interface=iface.id;renderInterfaces();updatePreview();};
+    grid.appendChild(c);
+  });
+}
+
+function renderFleet(){
+  const list=document.getElementById('fleetList');list.innerHTML='';
+  state.fleet.forEach((e,i)=>{
+    const d=document.createElement('div');d.className='fleet-entry';
+    d.innerHTML=`<input placeholder="Agent name" value="${e.name}" oninput="state.fleet[${i}].name=this.value;updatePreview()"><input placeholder="URL / endpoint" value="${e.url}" oninput="state.fleet[${i}].url=this.value;updatePreview()"><select onchange="state.fleet[${i}].role=this.value;updatePreview()"><option value="peer"${e.role==='peer'?' selected':''}>Peer</option><option value="leader"${e.role==='leader'?' selected':''}>Leader</option><option value="worker"${e.role==='worker'?' selected':''}>Worker</option><option value="service"${e.role==='service'?' selected':''}>Service</option></select><button class="remove" onclick="removeFleetEntry(${i})">✕</button>`;
+    list.appendChild(d);
+  });
+}
+function addFleetEntry(){state.fleet.push({name:'',url:'',role:'peer'});renderFleet();updatePreview();}
+function removeFleetEntry(i){state.fleet.splice(i,1);renderFleet();updatePreview();}
+
+function renderTopology(){
+  const viz=document.getElementById('topologyViz');
+  const name=state.name||'this-agent';
+  const conns=state.fleet.filter(e=>e.name.trim());
+  if(!conns.length){viz.textContent=`  [${name}]\n  -- standalone (no connections)`;return;}
+  let lines=[];
+  lines.push('          +==============+');
+  lines.push('          |  <'+name+'>  |  (you)');
+  lines.push('          +======+=======+');
+  lines.push('                 |');
+  conns.forEach((c,i)=>{
+    const br=i<conns.length-1?'|---':' \\--';
+    lines.push('       '+br+' ['+c.name+'] ('+c.role+')');
+  });
+  viz.textContent=lines.join('\n');
+}
+
+function buildConfig(){
+  syncAgentState();
+  const mods=state.modules.map(id=>{const m=MODULES.find(x=>x.id===id);return m?m.name:id;});
+  const iface=INTERFACES.find(x=>x.id===state.interface);
+  const fleet=state.fleet.filter(e=>e.name.trim());
+  return{construct:'1.0',agent:{name:state.name||'unnamed',type:state.type||'custom',description:state.desc,avatar:state.emoji},modules:mods,interface:iface?iface.name:'none',fleet:fleet.map(f=>({name:f.name,endpoint:f.url||'unknown',role:f.role}))};
+}
+function toYaml(obj,indent=0){
+  const pad='  '.repeat(indent);let lines=[];
+  for(const[k,v]of Object.entries(obj)){
+    if(v===null||v===undefined)continue;
+    if(Array.isArray(v)){
+      if(!v.length){lines.push(pad+k+': []');continue;}
+      lines.push(pad+k+':');
+      v.forEach(item=>{
+        if(typeof item==='object'&&item!==null){
+          lines.push(pad+'  -');
+          for(const[k2,v2]of Object.entries(item))lines.push(pad+'    '+k2+': '+String(v2));
+        }else lines.push(pad+'  - '+String(item));
+      });
+    }else if(typeof v==='object'){lines.push(pad+k+':');lines.push(toYaml(v,indent+1));}
+    else lines.push(pad+k+': '+v);
+  }
+  return lines.join('\n');
+}
+function renderConfig(){document.getElementById('configOutput').textContent=toYaml(buildConfig());}
+function copyConfig(){navigator.clipboard.writeText(document.getElementById('configOutput').textContent);}
+function downloadConfig(fmt){
+  const cfg=buildConfig();let content,filename,type;
+  if(fmt==='json'){content=JSON.stringify(cfg,null,2);filename=cfg.agent.name+'-config.json';type='application/json';}
+  else{content=toYaml(cfg);filename=cfg.agent.name+'-config.yaml';type='text/yaml';}
+  const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+}
+
+function updatePreview(){
+  syncAgentState();
+  document.getElementById('cardAvatar').textContent=state.emoji||'🤖';
+  const ne=document.getElementById('cardName');ne.innerHTML=state.name?state.name:'<span class="empty">unnamed agent</span>';
+  document.getElementById('cardType').textContent=state.type?state.type.toUpperCase():'';
+  const de=document.getElementById('cardDesc');de.innerHTML=state.desc?state.desc:'<span class="empty">No description yet</span>';
+  const me=document.getElementById('cardModules');
+  if(!state.modules.length)me.innerHTML='<span class="empty">none selected</span>';
+  else me.innerHTML=state.modules.map(id=>{const m=MODULES.find(x=>x.id===id);return '<span class="tag">'+(m?m.icon+' '+m.name:id)+'</span>';}).join('');
+  const ie=document.getElementById('cardInterface');
+  const iface=INTERFACES.find(x=>x.id===state.interface);
+  ie.innerHTML=iface?'<span class="iface-badge">'+iface.icon+' '+iface.name+'</span>':'<span class="empty">none selected</span>';
+  const fe=document.getElementById('cardFleet');
+  const fleet=state.fleet.filter(e=>e.name.trim());
+  fe.innerHTML=fleet.length?fleet.length+' connection'+(fleet.length>1?'s':''):'<span class="empty">no connections</span>';
+}
+
+renderModules();renderInterfaces();renderFleet();renderTopology();updatePreview();
+document.querySelectorAll('.progress-step').forEach(el=>{
+  el.addEventListener('click',()=>setPhase(parseInt(el.dataset.phase)));
+});
+</script>
 </body>
 </html>
