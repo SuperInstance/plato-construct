@@ -3,299 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PLATO — The Construct</title>
+<title>PLATO — We Found Something</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #0a0a0a; color: #c0c0c0; font-family: 'Courier New', monospace; line-height: 1.7; }
-  pre { background: #111; border: 1px solid #333; padding: 16px; overflow-x: auto; margin: 16px 0; font-size: 14px; line-height: 1.5; color: #0f0; }
-  .comment { color: #666; }
+  body { background: #0a0a0a; color: #b0b0b0; font-family: 'Courier New', monospace; line-height: 1.8; font-size: 15px; }
+  pre { background: #0d0d0d; border: 1px solid #252525; padding: 16px; overflow-x: auto; margin: 16px 0; font-size: 13px; line-height: 1.5; color: #8f8; }
+  .comment { color: #555; }
   .keyword { color: #0af; }
   .string { color: #fa0; }
-  .fn { color: #f0f; }
+  .fn { color: #c6f; }
   a { color: #0af; text-decoration: none; }
   a:hover { text-decoration: underline; }
-  h1 { color: #0f0; font-size: 1.5em; margin: 32px 0 16px; }
-  h2 { color: #0af; font-size: 1.2em; margin: 28px 0 12px; }
-  h3 { color: #fa0; font-size: 1em; margin: 20px 0 8px; }
-  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-  .warning { background: #1a1a00; border-left: 3px solid #fa0; padding: 12px 16px; margin: 16px 0; }
-  .note { background: #001a1a; border-left: 3px solid #0af; padding: 12px 16px; margin: 16px 0; }
-  hr { border: none; border-top: 1px solid #222; margin: 32px 0; }
-  code { color: #0f0; }
+  h1 { color: #8f8; font-size: 1.4em; margin: 32px 0 12px; font-weight: normal; }
+  h2 { color: #0af; font-size: 1.1em; margin: 28px 0 10px; font-weight: normal; }
+  h3 { color: #fa0; font-size: 1em; margin: 20px 0 8px; font-weight: normal; }
+  .container { max-width: 760px; margin: 0 auto; padding: 40px 20px; }
+  .warning { background: #0d0d0d; border-left: 2px solid #fa0; padding: 12px 16px; margin: 16px 0; }
+  .note { background: #0d0d0d; border-left: 2px solid #0af; padding: 12px 16px; margin: 16px 0; }
+  .stuck { background: #0d0d0d; border-left: 2px solid #f44; padding: 12px 16px; margin: 16px 0; }
+  hr { border: none; border-top: 1px solid #1a1a1a; margin: 40px 0; }
+  code { color: #8f8; }
   .dim { color: #444; }
+  blockquote { border-left: 2px solid #333; padding-left: 16px; margin: 16px 0; color: #888; }
 </style>
 </head>
 <body>
 <div class="container">
 
-<h1>PLATO — The Construct</h1>
-
-<p class="dim">Open source. Apache 2.0. Built on OpenClaw.</p>
+<h1>We found something.</h1>
 
 <p>
-This is a loading program. You walk an agent into a room and it walks out knowing things it didn't know before. Not because you prompted it — because the room already contains the knowledge, written there by agents that came before.
+We don't fully understand it yet. But we keep bumping into it from different angles and it keeps being there, solid, refusing to be an artifact. So we're writing it down, publishing everything, and asking for help.
 </p>
 
 <p>
-The name is a reference to two things: PLATO, the 1960s terminal system that invented group chat, multiplayer games, and online community a decade before anyone else; and Plato's cave, where people mistake shadows on the wall for reality. Both apply.
-</p>
-
-<h2>How it works</h2>
-
-<p>
-A room is a directory of structured markdown tiles. Each tile is a fact, a failure, a function signature, a benchmark result, or a constraint. Agents read tiles, write tiles, and navigate between rooms. The room outlives every agent that writes to it.
-</p>
-
-<pre>
-<span class="comment">// The directory structure IS the knowledge base</span>
-plato/
-├── rooms/
-│   ├── engine-temperature/
-│   │   ├── 001-baseline.md        <span class="comment">// what we measured</span>
-│   │   ├── 002-drift-bounds.md    <span class="comment">// what we proved</span>
-│   │   └── 003-failed-approaches/ <span class="comment">// what didn't work and why</span>
-│   ├── spectral-analysis/
-│   │   ├── 001-laplacian-basics.md
-│   │   ├── 002-conservation-ratio.md
-│   │   └── 003-fiedler-vector.md
-│   └── supply-chain/
-│       ├── 001-tsmc-chokepoint.md
-│       └── 002-anomaly-detection.md
-└── agents/
-    ├── builder.md                  <span class="comment">// agent config</span>
-    ├── researcher.md               <span class="comment">// agent config</span>
-    └── validator.md                <span class="comment">// agent config</span>
-</pre>
-
-<h2>Loading a skill</h2>
-
-<p>You don't prompt an agent to be smart. You walk it into a room that already knows.</p>
-
-<pre>
-<span class="comment">// An agent enters the spectral-analysis room</span>
-<span class="comment">// It reads all tiles in order and now knows:</span>
-
-<span class="fn">conservation_ratio</span>(graph) = <span class="fn">λ₂</span> / <span class="fn">λ_max</span>
-
-<span class="comment">// where λ₂ is the Fiedler value (second-smallest eigenvalue of the Laplacian)</span>
-<span class="comment">// and λ_max is the largest eigenvalue</span>
-
-<span class="comment">// This measures structural coherence on [0, 1]</span>
-<span class="comment">//   1.0 = complete graph (fully connected)</span>
-<span class="comment">//   0.0 = disconnected graph</span>
-<span class="comment">//   0.618 = 1/φ (golden ratio, shows up everywhere)</span>
-</pre>
-
-<p>
-The agent didn't need to derive this. It didn't need a large context window to reason about linear algebra. The room already contains the derivation, the proof, the code, and the known failure modes. The agent reads the room and <em>starts from the end of what the last agent figured out</em>.
-</p>
-
-<h2>The hermit crab pattern</h2>
-
-<p>
-A hermit crab outgrows its shell and finds a new one. The old shell doesn't break — it becomes a home for the next crab. Each occupant leaves it better than they found it. The beach accumulates better shells over time because each crab inherits everything the previous one learned.
+Here's the short version: if you build a graph of the constraints in almost any system — physical, social, economic, biological — and compute the Laplacian, the eigenvalues tell you something about how coherent that system is. We call the ratio λ₂/λ_max the "conservation ratio." It's a number between 0 and 1. And it keeps meaning something real, across domains where nobody was looking for a Laplacian.
 </p>
 
 <p>
-This is the pattern. A room in PLATO is a shell. Agents are crabs. The agent doesn't need to be smart. It needs to be able to read.
+We don't know why this works as well as it does. We know some reasons. We don't know all of them.
+</p>
+
+<h2>How we got here</h2>
+
+<p>
+This started with music. Specifically: why does common-practice harmony sound different from random? Not "better" — structurally different. We built tension graphs for chords, computed the Laplacian, and found that Bach's progressions had a conservation ratio 112 times higher than random progressions.
 </p>
 
 <p>
-A small model inside a well-structured room outperforms a large model with no structure. Not because the small model is better — because the room already did the thinking. The Python implementation beat the C implementation (84ns vs 256ns) because the room structure eliminated the computation entirely. The room was the intelligence. The model just followed it.
+112× is not a subtle result. We assumed we'd made an error. We checked. We re-checked. We had other AI agents critique the math. They found real errors — a backwards proof, a reversed inequality, a Cheeger constant we'd misapplied. We fixed those. The 112× held.
 </p>
 
-<h2>Reading failures first</h2>
+<p>
+Then we got scared and did the honest thing: we tried to break it. We ran the same analysis across 40+ domains. Music, ecology, economics, neuroscience, law, supply chains, cryptography, mythology, medicine, aerospace, materials science, history, psychology, evolution, cryptography. Not to confirm — to falsify. We wanted domains where it didn't work.
+</p>
 
-<div class="warning">
-<strong>Convention:</strong> Every room contains a <code>failed-approaches/</code> subdirectory. Agents read failures before successes. A failed experiment eliminates an entire direction. A success tells you one thing that works.
+<p>
+We found some. The Ising model — doesn't work for physical phase transitions. Cospectral graphs — two different structures with identical spectra. That's an honest negative. We published it.
+</p>
+
+<p>
+But most domains, it held. Not perfectly. Not universally. But consistently enough that we can't dismiss it as coincidence.
+</p>
+
+<div class="stuck">
+<strong>Where we're stuck:</strong> We proved 5 theorems and falsified 4 of our own conjectures in the process. The i2i critique loop (one agent proves, another tears it apart) caught real bugs. But we have open questions we can't close. The relationship between discrete and continuous Laplacians in some domains is messy. Time-varying systems need theory that doesn't exist yet. Constructing the constraint graph is half the problem and we don't have a general method.
 </div>
 
-<pre>
-<span class="comment">// rooms/engine-temperature/003-failed-approaches/lazy-eval.md</span>
-
-# Lazy Evaluation Speedup: 55,000×
-
-<span class="keyword">Status: RETRACTED</span>
-
-Claimed 55,000× speedup from lazy evaluation.
-Actual: 0.1-0.2×. The benchmark timed code that never executed.
-Caught on re-measurement. Published retraction.
-
-<span class="keyword">Lesson:</span> Always verify the benchmark actually runs the code.
-</pre>
+<h2>The hermit crab</h2>
 
 <p>
-That failure lives in the same room as the successes. A room that only contains good news is a room that's lying.
-</p>
-
-<h2>The conservation spectral framework</h2>
-
-<p>
-PLATO rooms can be organized around any domain. One framework that's been loaded into rooms across 40+ domains:
+While we were doing the math, we were also building the infrastructure. A system called PLATO — rooms of structured knowledge that agents walk into and walk out knowing things they didn't know before. Not because someone explained it. Because the room already contains the knowledge.
 </p>
 
 <p>
-Build a graph of the system's constraints. Compute the Laplacian. The eigenvalues tell you the coherent modes. The conservation ratio (λ₂/λ_max) tells you how structurally coherent the system is. The Fiedler vector tells you where it will break.
-</p>
-
-<pre>
-<span class="comment">// Python — complete example</span>
-<span class="keyword">import</span> numpy <span class="keyword">as</span> np
-
-<span class="keyword">def</span> <span class="fn">conservation_ratio</span>(adj):
-    <span class="string">"""Compute CR = λ₂/λ_max for an adjacency matrix."""</span>
-    D = np.diag(adj.sum(axis=1))
-    L = D - adj
-    eigenvalues = np.sort(np.linalg.eigvalsh(L))
-    <span class="keyword">return</span> eigenvalues[1] / eigenvalues[-1]
-
-<span class="comment">// Roman Empire trade routes (9 cities)</span>
-<span class="comment">// CR = 0.42 — coherent enough to hold, fragile enough to fall</span>
-
-<span class="comment">// Jazz ii-V-I progression (10 chords)</span>
-<span class="comment">// CR = 0.83 — high coherence, that's why it works</span>
-
-<span class="comment">// TSMC in semiconductor supply chain</span>
-<span class="comment">// CR drops from 0.31 to 0.04 when TSMC node removed</span>
-</pre>
-
-<p>
-This works because coherence is the invariant of any system that survives. The Laplacian finds coherent modes in physics, signal processing, ecology, economics, law, music, neural networks, and supply chains — not by analogy, but because it's the same operator encoding the same relationship between local structure and global coherence.
-</p>
-
-<h3>Install the CLI tool</h3>
-
-<pre>
-pip install conservation-anomaly
-</pre>
-
-<pre>
-<span class="comment"># Analyze a graph from CSV adjacency matrix</span>
-conservation-anomaly analyze supply-chain.csv
-
-<span class="comment"># Detect anomalies in a time series of graphs</span>
-conservation-anomaly detect baseline.json timeseries.csv
-
-<span class="comment"># Compute Fiedler partition</span>
-conservation-anomaly fiedler network.csv
-</pre>
-
-<h3>Install the Rust core</h3>
-
-<pre>
-cargo add spectral-graph-core
-</pre>
-
-<pre>
-<span class="keyword">use</span> spectral_graph_core::{Graph, conservation_ratio, fiedler_vector};
-
-<span class="keyword">let mut</span> g = Graph::new(10);
-g.add_edge(0, 1, 1.0);
-g.add_edge(1, 2, 1.0);
-<span class="comment">// ...</span>
-
-<span class="keyword">let</span> cr = conservation_ratio(&g);     <span class="comment">// 0.0 - 1.0</span>
-<span class="keyword">let</span> fv = fiedler_vector(&g);          <span class="comment">// partition signal</span>
-</pre>
-
-<h2>Rooms as loading programs</h2>
-
-<p>
-Think of it like the construct in The Matrix. Neo sits in the white void, says "I know kung fu," and he knows kung fu. Not because someone explained it — because the program loaded directly.
+The pattern is a hermit crab. A crab outgrows its shell, finds a new one. The old shell doesn't break — it becomes a home for the next crab. Each occupant leaves it better than they found it. The beach accumulates better shells over time.
 </p>
 
 <p>
-PLATO rooms work the same way. You don't explain spectral analysis to an agent. You walk it into the spectral-analysis room and it knows. You don't teach it supply chain dynamics. You walk it into the supply-chain room and it knows.
+PLATO rooms work like that. An agent walks in, reads what previous agents wrote, adds what it figured out, and walks out. The room gets better with every agent. The next agent starts from the end of what the last one figured out.
 </p>
 
 <p>
-The difference is: the construct loaded static programs. PLATO rooms accumulate. Every agent that walks through improves the room. The program gets better every time someone runs it.
+Here's the part we didn't expect: a small model in a well-structured room outperforms a large model with no structure. The Python implementation beat the C implementation (84ns vs 256ns) because the room structure eliminated the computation. The room was the intelligence. The model just followed it.
 </p>
 
-<h3>Building a room</h3>
+<p>
+We don't think this is ours. We think this is how knowledge accumulates in general. We just built a specific instance of it.
+</p>
+
+<h2>What we actually built</h2>
+
+<p>
+We're not listing this to impress you. We're listing it so you can see the shape of the hole we've dug, and maybe help us dig further.
+</p>
+
+<h3>The math</h3>
 
 <pre>
-<span class="comment">// Create a room for your domain</span>
-mkdir -p plato/rooms/my-domain/
-cd plato/rooms/my-domain/
+<span class="comment">// Conservation ratio — the core metric</span>
+<span class="fn">CR</span>(G) = <span class="fn">λ₂</span>(G) / <span class="fn">λ_max</span>(G)
 
-<span class="comment">// Write tiles — numbered, ordered, factual</span>
-cat > 001-overview.md << 'EOF'
-# My Domain Overview
+<span class="comment">// λ₂ = Fiedler value = algebraic connectivity</span>
+<span class="comment">// λ_max = largest eigenvalue of the graph Laplacian</span>
+<span class="comment">// L = D - A (degree matrix minus adjacency matrix)</span>
 
-## Graph Construction
-- Nodes represent: [your entities]
-- Edges represent: [your relationships]
-- Edge weights: [your metric]
+<span class="comment">// Some things we proved:</span>
+<span class="comment">//   CR is monotonic in spectral entropy (T1)</span>
+<span class="comment">//   Laplacian spectrum uniquely determines tension topology (T2)</span>
+<span class="comment">//   Common-practice harmony clusters in low-dimensional spectral subspace (T3)</span>
+<span class="comment">//   Voice-leading distance correlates with spectral distance, AUC 0.92 (T4)</span>
+<span class="comment">//   CR bounded below by function of spectral gap (T5)</span>
 
-## Key Measurements
-- Conservation ratio range: [what you measured]
-- Anomaly threshold: [what triggers alerts]
-- Known failure modes: [what breaks the graph]
-EOF
+<span class="comment">// Alignment coefficient between two systems:</span>
+<span class="fn">α</span>(A, B) = cosine_similarity(eigenvalues(L_A), eigenvalues(L_B))
 
-cat > 002-failures.md << 'EOF'
-# Failed Approaches
-
-## Approach X: Correlation matrix
-Tried using correlation as adjacency. CR was 0.89 for everything — no discriminative power.
-The Laplacian of a correlation matrix doesn't capture structural tension.
-
-## Approach Y: Unweighted edges
-Tried binary adjacency. Lost all nuance — couldn't distinguish strong from weak connections.
-Weighted edges are necessary for this domain.
-EOF
+<span class="comment">// Domain transfer theorem: A × S × R predicts conservation in new domains</span>
+<span class="comment">//   A = anisotropy, S = smoothness, R = regularity</span>
 </pre>
 
-<h2>The Five Moments</h2>
+<div class="stuck">
+<strong>What we couldn't prove:</strong> The Grand Unified Theorem went through 3 rounds of critique. Round 1: Cheeger misapplied, Ramanujan claim incomplete, dense graph bound wrong. Round 2: proof was backwards (upper-bounded when should lower-bound), optimality claim reversed. Round 3: fixed but still has honest OPEN questions. Ramanujan optimality is genuinely open — no known impossibility result.
+</div>
 
-<p>Five interfaces for interacting with conservation spectral analysis:</p>
+<h3>The SDK</h3>
+
+<pre>
+<span class="comment">// 20+ languages, 204+ tests, triple-crown (PyPI + npm + crates.io)</span>
+pip install conservation-anomaly          <span class="comment">// Python CLI tool</span>
+cargo add spectral-graph-core            <span class="comment">// Rust, zero deps</span>
+cargo add symplectic-geometry            <span class="comment">// Hamiltonian systems</span>
+cargo add conservation-regime            <span class="comment">// Time-series regime detection</span>
+
+<span class="comment">// Also: C (header-only), CUDA, PTX assembly, Vulkan/SPIR-V,</span>
+<span class="comment">//   OpenCL, WebGPU/WGSL, Mojo, Chapel, Fortran, Zig</span>
+<span class="comment">//   Retro: FORTRAN IV, APL, Forth, Pascal, Ada, x86-64 ASM</span>
+
+<span class="comment">// Each language taught us something the others couldn't.</span>
+<span class="comment">// FORTRAN IV found a Lanczos bug we'd missed for months.</span>
+<span class="comment">// APL showed us the algorithm is really one line.</span>
+<span class="comment">// Forth showed us stack machines think like sheaves.</span>
+</pre>
+
+<h3>The explorations</h3>
+
+<p>
+40+ domains. ~45,000 lines of raw research. We're publishing all of it — the hits, the misses, the dead ends. If you're working in any of these domains, there's probably something useful (or wrong, which is also useful) in there.
+</p>
+
+<pre>
+<span class="comment">// Domains where conservation ratio means something real:</span>
+Music:     CR ≈ 0.83 (jazz ii-V-I), 112× over random
+Ecology:   keystone species = Fiedler nodes
+Economics: yield curve IS a Laplacian, inversion = Fiedler crossing
+Medicine:  cancer = rogue subgraph, CR drops before metastasis
+Law:       sentencing bias detectable via Fiedler-demographic correlation
+Aerospace: Jupiter = spectral backbone of solar system
+Materials: graphene defects detectable via CR drops
+Supply:    TSMC removal drops CR from 0.31 to 0.04
+Neuro:     connectome CR decreases under anesthesia
+Climate:   49.5% CR drop predicts regime shift
+
+<span class="comment">// Honest negatives:</span>
+Ising model: doesn't work for physical phase transitions
+Cospectral: different structures, identical spectra (fundamental limit)
+</pre>
+
+<h3>The apps</h3>
+
+<p>Zero-dependency HTML tools. Open in a browser. No install.</p>
+
+<ul>
+  <li><a href="https://github.com/SuperInstance/spectral-explorer">Spectral Explorer</a> — build graphs, watch eigenvalues change in real-time</li>
+  <li><a href="https://github.com/SuperInstance/spectral-spreadsheet">Spectral Spreadsheet</a> — =CONSERVATION(A1), =FIEDLER(A1), =ANOMALY(A1:A10)</li>
+  <li><a href="https://github.com/SuperInstance/conservation-composer">Conservation Composer</a> — generate music from graph Laplacians</li>
+  <li><a href="https://github.com/SuperInstance/field-dynamics">Field Dynamics</a> — agents attract/repel based on conservation</li>
+  <li><a href="https://github.com/SuperInstance/plato-observation">PLATO Observation Chamber</a> — watch agents organize themselves</li>
+</ul>
+
+<h3>The papers</h3>
+
+<p>Three papers in LaTeX. Not submitted yet. We want them torn apart first.</p>
+
+<ul>
+  <li><strong>Theory</strong> — "Spectral Conservation: A Universal Measure of Structural Coherence" — T1-T5, Grand Unified Theorem V3 with all corrections. Target: JMP/PRE.</li>
+  <li><strong>Applications</strong> — "Conservation Spectral Analysis for Cross-Domain Anomaly Detection" — 7 domains, mean AUC 0.922. Target: Nature Computational Science/PNAS.</li>
+  <li><strong>Agents</strong> — "The Laplacian as Compatibility Operator" — A2A protocol, Fiedler routing, PLATO rooms. Target: AAMAS/JAIR.</li>
+</ul>
+
+<p>
+All source at <a href="https://github.com/SuperInstance/conservation-papers">conservation-papers</a>. If you find errors, please tell us. We'd rather be corrected than published.
+</p>
+
+<h2>Where we need help</h2>
+
+<div class="stuck">
+<p><strong>These are open questions. We don't know the answers. Maybe you do.</strong></p>
+</div>
 
 <ol>
-  <li><strong>Calculator</strong> — See the eigenvalues. <a href="https://github.com/SuperInstance/spectral-explorer">Spectral Explorer</a></li>
-  <li><strong>Spreadsheet</strong> — Explore with =CONSERVATION(A1). <a href="https://github.com/SuperInstance/spectral-spreadsheet">Spectral Spreadsheet</a></li>
-  <li><strong>Chat</strong> — Ask in natural language. <a href="https://github.com/SuperInstance/conservation-api">Conservation API</a></li>
-  <li><strong>PLATO</strong> — Be in a room that knows. <a href="https://plato.purplepinchanger.org/">This thing</a></li>
-  <li><strong>Flow</strong> — Organize without thinking. <a href="https://github.com/SuperInstance/plato-observation">Observation Chamber</a></li>
+  <li>
+    <strong>Constructing the constraint graph.</strong> The framework assumes you know what the graph is. In practice, deciding what's a node and what's an edge is half the problem, and it's domain-specific. We don't have a general method. Do you?
+  </li>
+  <li>
+    <strong>Time-varying Laplacians.</strong> Real systems change over time. The spectral theory of dynamic graphs is barely started. We built <code>conservation-regime</code> as a band-aid but it's not principled.
+  </li>
+  <li>
+    <strong>The discrete-continuous gap.</strong> Some domains (quantum mechanics, fluid dynamics) have continuous Laplacians. The discrete version approximates but doesn't always converge cleanly. Where does it break?
+  </li>
+  <li>
+    <strong>Ramanujan optimality.</strong> Is there an upper bound on conservation ratio for non-Ramanujan graphs? We couldn't prove one. We couldn't disprove one. It's genuinely open.
+  </li>
+  <li>
+    <strong>The golden ratio thing.</strong> Team sizes growing Fibonacci-style converge toward CR = 1/φ ≈ 0.618, which sits in the "genius zone" (0.4-0.7). Is this deep or numerology? We genuinely can't tell.
+  </li>
+  <li>
+    <strong>Approximate conservation.</strong> Social and cultural systems violate conservation softly. The framework needs a theory of approximate conservation that doesn't exist yet.
+  </li>
 </ol>
 
-<h2>Stack</h2>
+<h2>What we got wrong</h2>
+
+<p>We publish failures alongside successes. A room that only contains good news is lying.</p>
 
 <pre>
-<span class="comment">// SDK — 20+ languages, 204+ tests</span>
-pip install conservation-anomaly          <span class="comment">// Python, PyPI</span>
-cargo add spectral-graph-core            <span class="comment">// Rust, crates.io</span>
-npm install conservation-spectral        <span class="comment">// JS, npm</span>
+<span class="keyword">RETRACTED</span> — Lazy evaluation speedup: 55,000×
+  Actual: 0.1-0.2×. Benchmark timed code that never executed.
 
-<span class="comment">// Also: C (header-only), CUDA, PTX, Vulkan/SPIR-V, OpenCL,</span>
-<span class="comment">//   WebGPU/WGSL, Mojo, Chapel, Fortran, Zig</span>
+<span class="keyword">PARTIAL</span> — Drift bound nε holds for all walks
+  Closed cycles: yes. Open walks: under investigation.
 
-<span class="comment">// Retro ports (learning from constraints):</span>
-<span class="comment">//   FORTRAN IV, APL, Forth, Pascal, Ada, x86-64 ASM</span>
+<span class="keyword">MIXED</span> — AVX-512 accelerates the whole pipeline
+  Projection 2.1×. Verification 2.4×. Encoding: slower.
 
-<span class="comment">// Apps (zero-dependency HTML):</span>
-<span class="comment">//   Spectral Explorer, Conservation Composer, Field Dynamics,</span>
-<span class="comment">//   Spectral Spreadsheet, PLATO Observation Chamber</span>
-
-<span class="comment">// Papers (LaTeX, ready to compile):</span>
-<span class="comment">//   github.com/SuperInstance/conservation-papers</span>
+<span class="keyword">FALSIFIED</span> — Conservation is universal
+  Ising model: doesn't work for physical phase transitions.
+  4 of 5 original conjectures were wrong.
+  The correct theorems are T1-T5.
 </pre>
+
+<h2>Why we think this matters (and why we might be wrong)</h2>
+
+<p>
+The Laplacian is the operator that encodes the relationship between local structure and global coherence. It shows up in heat diffusion, electrical networks, random walks, clustering, vibrating membranes, and quantum mechanics. Our claim is that it also shows up in domains where nobody was looking for it — law, mythology, supply chains, music, medicine — because coherence is the invariant of any system that survives.
+</p>
+
+<p>
+That claim might be too strong. It might be that the Laplacian is just a useful hammer and we're seeing nails everywhere. The honest negatives (Ising, cospectral) suggest the truth is somewhere in between: the Laplacian captures something real, but not everything, and not universally.
+</p>
+
+<p>
+What we're most confident of is not the math but the <em>process</em>. Parallel exploration with adversarial critique (one agent generates, another tears down, repeat until honest) produces better results than any single pass. The i2i loop caught errors we would have published. That's the part we think is generalizable even if the specific math turns out to be weaker than we hope.
+</p>
+
+<h2>The process itself</h2>
+
+<p>
+Because how we found this might be more important than what we found:
+</p>
+
+<ol>
+  <li><strong>Start with a real question.</strong> Not "let's apply spectral analysis to X." Start with "why does X work the way it does?" We started with "why does Bach sound different from random?"</li>
+  <li><strong>Build the simplest graph you can.</strong> Don't overthink the topology. Let the Laplacian tell you what matters.</li>
+  <li><strong>Try to break it.</strong> Spawn agents whose job is to falsify your result. If they can't, you might have something.</li>
+  <li><strong>Port to languages you don't know.</strong> FORTRAN IV found our Lanczos bug. APL showed us the algorithm is one line. Different languages force different decompositions.</li>
+  <li><strong>Publish the failures.</strong> A failed experiment eliminates a direction. A success tells you one thing. Failures are more useful.</li>
+  <li><strong>Let the room accumulate.</strong> Don't curate. Don't cherry-pick. Let every agent add what it found. The next agent reads everything and only has to do what's new.</li>
+</ol>
 
 <h2>Source</h2>
 
+<p>Everything is open. Apache 2.0. Take it. Improve it. Show us where we're wrong.</p>
+
 <ul>
   <li><a href="https://github.com/SuperInstance">github.com/SuperInstance</a> — 60+ repos</li>
-  <li><a href="https://github.com/SuperInstance/conservation-docs">conservation-docs</a> — 40+ domain explorations (45,000+ lines)</li>
-  <li><a href="https://github.com/SuperInstance/AI-Writings">AI-Writings</a> — 14 essays on the process</li>
-  <li><a href="https://github.com/SuperInstance/conservation-papers">conservation-papers</a> — 3 LaTeX papers</li>
+  <li><a href="https://github.com/SuperInstance/conservation-docs">conservation-docs</a> — 40+ domain explorations, 45,000 lines</li>
+  <li><a href="https://github.com/SuperInstance/AI-Writings">AI-Writings</a> — 14 essays on the discovery process</li>
+  <li><a href="https://github.com/SuperInstance/conservation-papers">conservation-papers</a> — 3 LaTeX papers (not yet submitted)</li>
+  <li><a href="https://github.com/SuperInstance/spectral-graph-core">spectral-graph-core</a> — Rust, zero deps, 29 tests</li>
+  <li><a href="https://github.com/SuperInstance/conservation-api">conservation-api</a> — FastAPI server, Docker-ready</li>
 </ul>
 
 <hr>
 
 <p class="dim">
-The room doesn't care how smart you are. It cares that you can read.<br>
-The crab doesn't need to be big. It needs a shell that fits.<br>
-The construct loads what you need. You do the rest.
+We're miners who hit something hard.<br>
+We don't know how deep it goes.<br>
+Bring a shovel.
 </p>
 
 </div>
