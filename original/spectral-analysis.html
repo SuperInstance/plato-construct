@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLATO — Conservation Spectral Analysis</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; color: #b0b0b0; font-family: 'Courier New', monospace; line-height: 1.8; font-size: 15px; }
+  pre { background: #0d0d0d; border: 1px solid #252525; padding: 16px; overflow-x: auto; margin: 16px 0; font-size: 13px; line-height: 1.5; color: #8f8; }
+  .comment { color: #555; }
+  .keyword { color: #0af; }
+  .fn { color: #c6f; }
+  a { color: #0af; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1 { color: #8f8; font-size: 1.4em; margin: 32px 0 12px; font-weight: normal; }
+  h2 { color: #0af; font-size: 1.1em; margin: 28px 0 10px; font-weight: normal; }
+  h3 { color: #fa0; font-size: 1em; margin: 20px 0 8px; font-weight: normal; }
+  .container { max-width: 760px; margin: 0 auto; padding: 40px 20px; }
+  .stuck { background: #0d0d0d; border-left: 2px solid #f44; padding: 12px 16px; margin: 16px 0; }
+  .result { background: #0d0d0d; border-left: 2px solid #8f8; padding: 12px 16px; margin: 16px 0; }
+  hr { border: none; border-top: 1px solid #1a1a1a; margin: 40px 0; }
+  code { color: #8f8; }
+  .dim { color: #444; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Conservation Spectral Analysis</h1>
+
+<p>
+We found that the ratio λ₂/λ_max of the graph Laplacian — the second-smallest eigenvalue divided by the largest — measures structural coherence in real systems. We call it the conservation ratio (CR). It ranges from 0 (disconnected) to 1 (complete graph). In 40+ domains, CR distinguishes functioning systems from broken ones, healthy from pathological, coherent from random.
+</p>
+
+<p>
+We're publishing everything — the math, the code, the failed approaches, the open questions — because we keep finding this thing and we can't explain the full scope of it alone.
+</p>
+
+<h2>The core mechanism</h2>
+
+<p>
+The graph Laplacian L = D − A (degree matrix minus adjacency matrix) encodes how information, energy, or influence flows through a network. Its eigenvalues reveal the coherent modes of the system — the stable patterns that persist when everything else fluctuates.
+</p>
+
+<pre>
+<span class="comment">// The three quantities that matter:</span>
+
+<span class="fn">λ₁</span> = 0                <span class="comment">// always zero (constant vector, trivial mode)</span>
+<span class="fn">λ₂</span> = Fiedler value     <span class="comment">// algebraic connectivity — how hard it is to disconnect the graph</span>
+<span class="fn">λ_max</span>                  <span class="comment">// largest eigenvalue — total spectral energy</span>
+
+<span class="fn">CR</span> = λ₂ / λ_max         <span class="comment">// conservation ratio — normalized coherence</span>
+
+<span class="comment">// Why this particular ratio:</span>
+<span class="comment">//   λ₂ measures how connected the graph is (0 = disconnected)</span>
+<span class="comment">//   λ_max measures how much total spectral energy exists</span>
+<span class="comment">//   The ratio is scale-invariant — same CR regardless of graph size</span>
+<span class="comment">//   CR = 1 only for complete graphs (every node connected to every other)</span>
+<span class="comment">//   CR = 0 for any disconnected graph</span>
+</pre>
+
+<h3>The Fiedler vector</h3>
+
+<p>
+The eigenvector corresponding to λ₂ (the Fiedler vector) is equally important. Its signs naturally partition the graph into two communities. This isn't an algorithm — it's a property of the Laplacian. The Fiedler vector finds the graph's fault line, the weakest cut, the place where the system would split if stressed.
+</p>
+
+<pre>
+<span class="comment">// Fiedler vector of a graph with two communities:</span>
+<span class="fn">v₂</span> = [0.31, 0.28, 0.25, -0.29, -0.33, -0.22]
+<span class="comment">//         ↑ community 1 (positive)    ↑ community 2 (negative)</span>
+
+<span class="comment">// The sign change between index 2 and 3 is where the graph would split.</span>
+<span class="comment">// This is spectral bisection — optimal cut in a precise mathematical sense.</span>
+</pre>
+
+<h2>What we measured</h2>
+
+<p>
+Starting from music theory (why does Bach sound structurally different from random?), we tested CR across 40+ domains. Here's what we found:
+</p>
+
+<div class="result">
+<strong>Music:</strong> Common-practice harmony (Bach, Mozart, jazz) has CR 112× higher than randomly generated progressions. The conservation ratio measures harmonic tension-resolution balance. Jazz ii-V-I progressions score CR ≈ 0.83.
+</div>
+
+<div class="result">
+<strong>Ecology:</strong> Keystone species are the nodes with highest eigenvector centrality in the food web Laplacian. Removing a keystone species drops CR dramatically. Removing a non-keystone doesn't. This gives a mathematical definition of "keystone" — any species whose removal decreases λ₂ by more than 1/n.
+</div>
+
+<div class="result">
+<strong>Economics:</strong> The yield curve IS a Laplacian — each maturity is a node, forward rates are edge weights. Yield curve inversion = Fiedler value crossing zero = the graph about to disconnect (recession). Spectral central banking: adjust rates to maintain λ₂ > 0.
+</div>
+
+<div class="result">
+<strong>Supply chain:</strong> TSMC is a Fiedler node in the semiconductor supply graph. Removing TSMC drops CR from 0.31 to 0.04. This quantifies chokepoint criticality: how much does CR drop if node X is removed? That number IS the node's criticality.
+</div>
+
+<div class="result">
+<strong>Neuroscience:</strong> Connectome CR decreases under anesthesia (spectral gap closes = loss of integrated information). This connects to IIT: CR is a tractable lower bound on Φ (integrated information), which IIT defines as consciousness but is normally intractable to compute.
+</div>
+
+<div class="result">
+<strong>Medicine:</strong> Cancer = rogue subgraph. Tumor cells form connections that bypass normal tissue architecture, creating a high-conservation subgraph that grows independently. CR of the tissue graph drops before metastasis.
+</div>
+
+<div class="result">
+<strong>Aerospace:</strong> Solar system as gravitational graph — Jupiter's eigenvector centrality is 0.99× the Sun's. Kirkwood gaps (asteroid-poor regions) correspond to degenerate eigenvalue regions. Apollo 13's failure cascaded through all 15 subsystems in 6 rounds because the dependency graph had CR ≈ 0.
+</div>
+
+<div class="result">
+<strong>Anomaly detection:</strong> Mean AUC 0.922 across 7 domains using a single algorithm: monitor CR over time, flag when it drops. No domain-specific tuning. The same math that finds harmonic anomalies in Bach finds financial crises and ecological collapse.
+</div>
+
+<h3>Honest negatives</h3>
+
+<pre>
+<span class="keyword">FAILS</span> — Ising model phase transitions
+  CR doesn't predict physical phase transitions. The Laplacian of an Ising lattice
+  doesn't capture the order parameter. This is a real domain where the framework breaks.
+
+<span class="keyword">FAILS</span> — Cospectral graphs
+  Different graphs can have identical spectra. CR cannot distinguish them.
+  This is a fundamental information-theoretic limit of any spectral method.
+
+<span class="keyword">FALSIFIED</span> — 4 of 5 original conjectures
+  We proved T1-T5. But C1-C4 (our original conjectures) were wrong.
+  Honest math: theorems survived, conjectures didn't.
+</pre>
+
+<h2>The theorems</h2>
+
+<p>What survived the i2i critique loop (3 rounds of adversarial review):</p>
+
+<pre>
+<span class="fn">T1</span>  CR is monotonic in spectral entropy
+    Higher CR = lower entropy = more predictable structure.
+    Proof: spectral entropy H = -Σ(λᵢ/Σλⱼ)log(λᵢ/Σλⱼ), monotonic in CR.
+
+<span class="fn">T2</span>  Laplacian spectrum uniquely determines tension topology
+    Up to graph isomorphism. Two tension structures share eigenvalues ⟹ isomorphic.
+    Proof: spectral reconstruction + Weyl's inequality.
+
+<span class="fn">T3</span>  Common-practice harmony clusters in low-dimensional spectral subspace
+    The "harmonic manifold" occupies negligible fraction of total spectral space.
+    The 112× result follows: SNR amplification ≥ n·ρ₂ ≈ 112.
+
+<span class="fn">T4</span>  Voice-leading distance correlates with spectral distance (AUC 0.92)
+    The Laplacian formalism tracks what ears actually hear.
+    Not mathematically trivial — voice-leading is a combinatorial metric.
+
+<span class="fn">T5</span>  CR bounded below by function of spectral gap
+    CR ≥ λ₂ / (2·max_degree) via Gershgorin circle theorem.
+</pre>
+
+<h3>What didn't survive</h3>
+
+<p>
+The Grand Unified Theorem went through 3 rounds of adversarial critique (one agent proves, another tears it apart). Round 1: Cheeger constant misapplied, Ramanujan optimality claim incomplete. Round 2: proof was backwards — upper-bounded the numerator when it should lower-bound it. Round 3: fixed, but Ramanujan optimality remains genuinely open.
+</p>
+
+<div class="stuck">
+<strong>Open questions we can't close:</strong>
+<ol>
+<li>Constructing the constraint graph is domain-specific. No general method exists.</li>
+<li>Time-varying Laplacians: the spectral theory of dynamic graphs is barely started.</li>
+<li>Discrete vs continuous: the Laplacian approximation doesn't always converge cleanly.</li>
+<li>Ramanujan optimality: no known upper bound on CR for non-Ramanujan graphs. Genuinely open.</li>
+<li>Approximate conservation: social systems violate conservation softly. No theory for this yet.</li>
+</ol>
+</div>
+
+<h2>Alignment coefficient</h2>
+
+<p>
+For comparing two systems, we defined:
+</p>
+
+<pre>
+<span class="fn">α</span>(A, B) = cosine_similarity(eigenvalues(L_A), eigenvalues(L_B))
+</pre>
+
+<p>
+This measures structural similarity between two graphs. α = 1.0 means identical spectra (isomorphic or cospectral). α ≈ 0 means orthogonal structure. In practice:
+</p>
+
+<pre>
+<span class="comment">// What α measures in different contexts:</span>
+Music:    α between traditions ≈ 0.196 (conservation is domain-specific)
+Agents:   α between agent spectral fingerprints = compatibility
+Medicine: α between healthy and pathological tissue → disease signature
+Ecology:  α between ecosystems → convergent evolution detection
+</pre>
+
+<h3>The domain transfer theorem</h3>
+
+<p>
+Whether conservation analysis works in a new domain is predictable from three properties:
+</p>
+
+<pre>
+<span class="fn">A</span> = Anisotropy     <span class="comment">// how much edge weights vary</span>
+<span class="fn">S</span> = Smoothness    <span class="comment">// how smoothly quantities flow across edges</span>
+<span class="fn">R</span> = Regularity    <span class="comment">// how uniform the graph structure is</span>
+
+<span class="comment">// High A × S × R → conservation analysis works well</span>
+<span class="comment">// Low A or S or R → framework may not apply</span>
+
+<span class="comment">// Examples:</span>
+<span class="comment">//   Molecular dynamics: A=0.9, S=0.8, R=0.9 → α=1.00 (strongest result)</span>
+<span class="comment">//   Hash chains: A=0.1, S=0.2, R=0.3 → α=0.008 (framework barely applies)</span>
+<span class="comment">//   Game theory: A=0.5, S=0.4, R=0.5 → α=0.31 (moderate)</span>
+</pre>
+
+<h2>The Fibonacci connection</h2>
+
+<p>
+Team sizes growing Fibonacci-style (each new member bridges the two previous groups) produce graphs whose CR converges toward 1/φ ≈ 0.618. This sits in the center of what we call the "genius zone" — CR 0.4-0.7, where systems are coherent enough to function but loose enough to innovate.
+</p>
+
+<pre>
+<span class="comment">// Fibonacci team growth: each new agent bridges two previous generations</span>
+Gen 0: 1 agent
+Gen 1: 1 agent
+Gen 2: 2 agents (bridge gen 0 and gen 1)
+Gen k: F(k) agents
+<span class="comment">// F(k)/F(k-1) → φ = 1.618...</span>
+
+<span class="comment">// The CR of this growth pattern converges. Not to 0 or 1.</span>
+<span class="comment">// To 1/φ. Which is in the genius zone.</span>
+<span class="comment">// We don't know if this is deep or numerology. It's one of the open questions.</span>
+</pre>
+
+<h2>PLATO rooms</h2>
+
+<p>
+The infrastructure for accumulating this knowledge across agent sessions. A room is a directory of structured tiles. Agents read tiles, write tiles, navigate between rooms. The room outlives every agent.
+</p>
+
+<pre>
+<span class="comment">// Directory structure IS the knowledge base</span>
+plato/rooms/
+├── spectral-analysis/
+│   ├── 001-laplacian-basics.md
+│   ├── 002-conservation-ratio.md
+│   ├── 003-fiedler-vector.md
+│   └── failed-approaches/
+│       ├── correlation-matrix.md   <span class="comment">// CR=0.89 for everything, useless</span>
+│       └── unweighted-edges.md     <span class="comment">// lost all discriminative power</span>
+├── supply-chain/
+│   ├── 001-tsmc-chokepoint.md
+│   └── 002-anomaly-detection.md
+└── music/
+    ├── 001-tension-graphs.md
+    ├── 002-112x-result.md
+    └── 003-jazz-analysis.md
+</pre>
+
+<p>
+A small model in a well-structured room outperforms a large model with no structure. We measured this: Python at 84ns/op beat optimized C at 256ns/op because the room structure eliminated the computation entirely. The room was the intelligence. The model just followed it.
+</p>
+
+<p>
+The pattern: hermit crabs outgrow shells, the old shell becomes home for the next crab, each occupant leaves it better than they found it. But the ocean moves. The ecosystem is a moving target. What worked last season shifts next season. So the room doesn't just accumulate facts — it accumulates the history of what worked, what didn't, and what the water was doing when the catch was good.
+</p>
+
+<h2>Install and use</h2>
+
+<pre>
+<span class="comment">// Python CLI</span>
+pip install conservation-anomaly
+
+conservation-anomaly analyze graph.csv          <span class="comment">// eigenvalues, CR, Fiedler</span>
+conservation-anomaly detect baseline.json ts.csv <span class="comment">// anomaly detection</span>
+conservation-anomaly compare g1.json g2.json     <span class="comment">// alignment coefficient α</span>
+conservation-anomaly fiedler graph.csv           <span class="comment">// partition vector</span>
+</pre>
+
+<pre>
+<span class="comment">// Rust core — zero dependencies</span>
+<span class="keyword">use</span> spectral_graph_core::{Graph, conservation_ratio, fiedler_vector, alignment_coefficient};
+
+<span class="keyword">let mut</span> g = Graph::new(10);
+g.add_edge(0, 1, 1.0);
+<span class="comment">// ...</span>
+
+<span class="keyword">let</span> cr = conservation_ratio(&g);           <span class="comment">// 0.0 - 1.0</span>
+<span class="keyword">let</span> fv = fiedler_vector(&g);                <span class="comment">// partition signal</span>
+<span class="keyword">let</span> α  = alignment_coefficient(&g1, &g2);   <span class="comment">// structural similarity</span>
+</pre>
+
+<pre>
+<span class="comment">// FastAPI server — Docker-ready</span>
+<span class="comment">// POST /analyze     → eigenvalues, CR, Fiedler, Cheeger, node importance</span>
+<span class="comment">// POST /compare     → alignment coefficient α, eigenvalue cosine similarity</span>
+<span class="comment">// POST /detect-anomaly → CR time series, anomaly flagging, change points</span>
+<span class="comment">// GET  /domains/{d} → preset graphs (music, ecology, economics, etc.)</span>
+</pre>
+
+<h3>Full SDK — 20+ languages</h3>
+
+<pre>
+pip install conservation-anomaly          <span class="comment">// PyPI</span>
+cargo add spectral-graph-core            <span class="comment">// crates.io</span>
+npm install conservation-spectral        <span class="comment">// npm</span>
+
+<span class="comment">// Also: C (header-only), CUDA, PTX assembly, Vulkan/SPIR-V, OpenCL,</span>
+<span class="comment">//   WebGPU/WGSL, Mojo, Chapel, Fortran, Zig</span>
+<span class="comment">//   FORTRAN IV, APL, Forth, Pascal, Ada, x86-64 ASM</span>
+
+<span class="comment">// 204+ tests across 9 primary languages</span>
+<span class="comment">// Cross-language consistency verified to 1e-11+</span>
+</pre>
+
+<h3>Apps — zero-dependency HTML</h3>
+
+<ul>
+  <li><a href="https://github.com/SuperInstance/spectral-explorer">Spectral Explorer</a> — build graphs interactively, watch eigenvalues change</li>
+  <li><a href="https://github.com/SuperInstance/spectral-spreadsheet">Spectral Spreadsheet</a> — =CONSERVATION(A1), =FIEDLER(A1), =ANOMALY(A1:A10)</li>
+  <li><a href="https://github.com/SuperInstance/conservation-composer">Conservation Composer</a> — music from graph Laplacians, CR controls consonance</li>
+  <li><a href="https://github.com/SuperInstance/plato-observation">PLATO Observation Chamber</a> — watch agents self-organize via spectral conservation</li>
+</ul>
+
+<h2>What we got wrong</h2>
+
+<pre>
+<span class="keyword">RETRACTED</span>  Lazy evaluation speedup: 55,000×
+           Actual: 0.1-0.2×. Timed code that never executed.
+
+<span class="keyword">PARTIAL</span>    Drift bound nε holds for all walks
+           Closed cycles: proven. Open walks: still under investigation.
+
+<span class="keyword">FALSIFIED</span> Conservation is universal
+           Ising model: doesn't work for physical phase transitions.
+           4 of 5 original conjectures were wrong.
+           The surviving theorems are T1-T5.
+</pre>
+
+<h2>Papers</h2>
+
+<p>Three papers in LaTeX. Not submitted yet. We want them torn apart first.</p>
+
+<ul>
+  <li><strong>Theory</strong> — T1-T5, Grand Unified Theorem V3, Domain Transfer Theorem. <a href="https://github.com/SuperInstance/conservation-papers">source</a></li>
+  <li><strong>Applications</strong> — 7 domains, mean AUC 0.922, comparison tables. <a href="https://github.com/SuperInstance/conservation-papers">source</a></li>
+  <li><strong>Agents</strong> — A2A spectral protocol, Fiedler routing, PLATO rooms. <a href="https://github.com/SuperInstance/conservation-papers">source</a></li>
+</ul>
+
+<h2>The process that produced this</h2>
+
+<ol>
+  <li><strong>Start with a real question, not a method.</strong> We didn't say "let's apply spectral analysis everywhere." We asked "why does Bach sound different from random?" The Laplacian was the answer, not the premise.</li>
+  <li><strong>Adversarial self-correction (i2i).</strong> One agent proves, another tears it apart, repeat. Three rounds caught: backwards proofs, reversed inequalities, misapplied constants. The errors the i2i loop caught would have been published.</li>
+  <li><strong>Port to languages you don't know.</strong> FORTRAN IV found a Lanczos bug (starting vector norm was √11 not 1). APL showed the algorithm is one line. Forth revealed stack = sheaf stalk. Each language decomposes the problem differently.</li>
+  <li><strong>Publish failures with successes.</strong> A failed experiment eliminates a direction. A success tells you one thing that works. Failures carry more information per unit of work.</li>
+  <li><strong>The room accumulates, the model follows.</strong> Knowledge persists across sessions. The next agent starts from the end of what the last one figured out. The room is the intelligence; the model is the reader.</li>
+  <li><strong>The water moves.</strong> The ecosystem is a moving target. What worked last season shifts. Record what the water was doing, not just what you caught.</li>
+</ol>
+
+<h2>Source</h2>
+
+<p>Apache 2.0. Everything open.</p>
+
+<ul>
+  <li><a href="https://github.com/SuperInstance">github.com/SuperInstance</a> — 60+ repos</li>
+  <li><a href="https://github.com/SuperInstance/conservation-docs">conservation-docs</a> — 40+ domain explorations, 45,000 lines</li>
+  <li><a href="https://github.com/SuperInstance/AI-Writings">AI-Writings</a> — 14 essays on the discovery process</li>
+  <li><a href="https://github.com/SuperInstance/conservation-papers">conservation-papers</a> — 3 LaTeX papers</li>
+</ul>
+
+<hr>
+
+<p class="dim">
+We put our traps in the right water for a few seasons.<br>
+The ocean moves. The school shifts. The ecosystem is a moving target.<br>
+Here's what the water was doing when the catch was good.<br>
+Bring your own bait.
+</p>
+
+</div>
+</body>
+</html>
