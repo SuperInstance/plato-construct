@@ -99,3 +99,7 @@ The Construct is the onboarding entry point for [OpenConstruct](https://github.c
 ## License
 
 Apache 2.0 — everything open.
+
+## Documentation
+
+- [OpenConstruct Documentation](https://github.com/SuperInstance/openconstruct-docs) — ecosystem-wide docs and guides
