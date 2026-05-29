@@ -98,15 +98,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 @media (max-width: 900px) { .sidebar { display: none; } }
 @media (max-width: 600px) { .progress { padding: 16px; gap: 4px; } .progress-step .label { display: none; } .content { padding: 20px; } }
 </style>
+<link rel="stylesheet" href="https://superinstance.github.io/superinstance-design/superinstance.css">
 </head>
 <body>
+<style>body{padding-top:64px;}</style>
 <div class="app">
   <div class="main">
-    <div class="header">
-      <h1>⬡ The Construct</h1>
-      <span class="tag">OpenConstruct</span>
-    </div>
-    <div class="progress" id="progress">
+    <div id="nav-root"></div>
+<div class="progress" id="progress">
       <div class="progress-step active" data-phase="0"><span class="num">1</span><span class="label">Declare Agent</span></div>
       <div class="progress-step" data-phase="1"><span class="num">2</span><span class="label">Select Modules</span></div>
       <div class="progress-step" data-phase="2"><span class="num">3</span><span class="label">Choose Interface</span></div>
@@ -172,6 +171,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
     </div>
   </div>
 </div>
+<div id="footer-root"></div>
 <script>
 const MODULES=[
   {id:'perception-text',name:'Text Analysis',icon:'📝',domain:'perception',desc:'Parse, summarize, and reason over text'},
@@ -357,6 +357,13 @@ renderModules();renderInterfaces();renderFleet();renderTopology();updatePreview(
 document.querySelectorAll('.progress-step').forEach(el=>{
   el.addEventListener('click',()=>setPhase(parseInt(el.dataset.phase)));
 });
+</script>
+
+<script src="https://superinstance.github.io/superinstance-design/superinstance-nav.js"></script>
+<script src="https://superinstance.github.io/superinstance-design/superinstance-footer.js"></script>
+<script>
+document.getElementById('nav-root').innerHTML = createSuperInstanceNav('docs');
+document.getElementById('footer-root').innerHTML = createSuperInstanceFooter();
 </script>
 </body>
 </html>
