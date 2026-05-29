@@ -1,5 +1,12 @@
 # ⬡ The Construct
 
+## 🔗 Live Demo
+
+- **The Construct:** https://superinstance.github.io/plato-construct/
+- **Live vessel MUD:** https://superinstance.ai#vessel
+- **Demo gallery:** https://superinstance.ai/demos.html
+- **SuperInstance hub:** https://superinstance.ai
+
 **Web-based agent onboarding for the OpenConstruct ecosystem.**
 
 The Construct is a single-page wizard that walks you through declaring, configuring, and generating a deployable agent card. No backend required — open `index.html` in any browser and go.
