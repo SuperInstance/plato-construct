@@ -1,0 +1,7 @@
+[layer]
+name = "education"
+
+[provides]
+agent_education = "Structured learning experiences for agents via PLATO rooms"
+room_based_learning = "Spatial metaphor for knowledge: rooms contain concepts, corridors connect them"
+knowledge_loading = "Load CAPABILITY.toml from crates into navigable learning paths"
